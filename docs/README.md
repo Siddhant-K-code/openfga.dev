@@ -6,24 +6,28 @@ hide_title: true
 
 ## About OpenFGA
 
-[OpenFGA](https://github.com/openfga/openfga) is an open source Fine-Grained Authorization solution based on Google's Zanzibar. It was created by the Okta FGA team and welcomes community contribution. OpenFGA is designed to make it easy for application builders to quickly add fine-grained authorization to their applications. It offers an HTTP API and has SDKs for programming languages including [JavaScript](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk) and [Python](https://github.com/openfga/python-sdk). More SDKs and integrations such as Rego are planned for the future. OpenFGA is designed and optimized for reliability and low latency at a high scale.
+[OpenFGA](https://github.com/openfga/openfga) is an open source Fine-Grained Authorization solution based on Google's Zanzibar. It was created by the Okta FGA team and welcomes community contribution. OpenFGA is designed to make it easy for application builders to quickly add fine-grained authorization to their applications. OpenFGA is designed and optimized for reliability and low latency at a high scale.
+
+It offers an HTTP API, a gRPC API, and has SDKs for programming languages including [JavaScript](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk) and [Python](https://github.com/openfga/python-sdk) and [Java](https://github.com/openfga/java-sdk). 
 
 ## Resources
 
 - [Okta FGA Playground](https://play.fga.dev)
 - [Zanzibar Academy](https://zanzibar.academy)
 - [OpenFGA on Twitter](https://twitter.com/OpenFGA)
-- [Discord Community](https://discord.gg/pvbNmqC)
+- [OpenFGA Community](https://openfga.dev/community) in Slack and GitHub
 
 ## Documentation
 
-- [What is OpenFGA](./content/authorization-and-openfga.mdx)
+- [What is OpenFGA](./content/intro.mdx)
 - [Concepts](./content/concepts.mdx)
 - [Configuration Language](./content/configuration-language.mdx)
 - [Getting Started](./content/getting-started/overview.mdx)
   - [Setup OpenFGA](./content/getting-started/setup-openfga/overview.mdx)
+    - [Configure OpenFGA](./content/getting-started/setup-openfga/configure-openfga.mdx)
     - [Docker](./content/getting-started/setup-openfga/docker-setup.mdx)
     - [Kubernetes](./content/getting-started/setup-openfga/kubernetes-setup.mdx)
+    - [Playground](./content/getting-started/setup-openfga/playground.mdx)
   - [Install SDK Client](./content/getting-started/install-sdk.mdx)
   - [Create a Store](./content/getting-started/create-store.mdx)
   - [Setup SDK Client for Store](./content/getting-started/setup-sdk-client.mdx)
@@ -31,6 +35,7 @@ hide_title: true
   - [Update Relationship Tuples](./content/getting-started/update-tuples.mdx)
   - [Perform a Check](./content/getting-started/perform-check.mdx)
   - [Perform a List Objects Request](./content/getting-started/perform-list-objects.mdx)
+  - [Use the FGA CLI](./content/getting-started/cli.mdx)
   - [Integrate Within a Framework](./content/getting-started/framework.mdx)
   - [Production Best Practices](./content/getting-started/production-best-practices.mdx)
   - [Managing Tuples and Invoking API Best Practices](./content/getting-started/tuples-api-best-practices.mdx)
@@ -44,6 +49,9 @@ hide_title: true
   - [Public Access](./content/modeling/public-access.mdx)
   - [Multiple Restrictions](./content/modeling/multiple-restrictions.mdx)
   - [Custom Roles](./content/modeling/custom-roles.mdx)
+  - [Conditions](./content/modeling/conditions.mdx)
+  - [Testing Models](./content/modeling/testing-models.mdx)
+  - [Token Claims as Contextual Tuples](./content/modeling/token-claims-contextual-tuples.mdx)
   - [Contextual and Time-Based Authorization](./content/modeling/contextual-time-based-authorization.mdx)
   - [Authorization Through Organization Context](./content/modeling/organization-context-authorization.mdx)
   - [Building Blocks](./content/modeling/building-blocks/overview.mdx)
@@ -59,7 +67,6 @@ hide_title: true
     - [Entitlements](./content/modeling/advanced/entitlements.mdx)
   - [Migrating](./content/modeling/migrating/overview.mdx)
     - [Migrating Relations](./content/modeling/migrating/migrating-relations.mdx)
-    - [Migrating to Schema 1.1](./content/modeling/migrating/migrating-schema-1-1.mdx)
 - [Interacting with the API](./content/interacting/overview.mdx)
   - [Manage User Access](./content/interacting/managing-group-access.mdx)
   - [Manage Group Access](./content/interacting/managing-user-access.mdx)

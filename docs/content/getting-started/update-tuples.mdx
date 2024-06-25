@@ -34,7 +34,7 @@ This section will illustrate how to update _<ProductConcept section="what-is-a-r
 1. <SdkSetupPrerequisite />
 2. You have [installed the SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx).
-4. You have loaded `FGA_STORE_ID` and `FGA_API_HOST` as environment variables.
+4. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.GO_SDK} label={languageLabelMap.get(SupportedLanguage.GO_SDK)}>
@@ -42,7 +42,7 @@ This section will illustrate how to update _<ProductConcept section="what-is-a-r
 1. <SdkSetupPrerequisite />
 2. You have [installed the SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx).
-4. You have loaded `FGA_STORE_ID` and `FGA_API_HOST` as environment variables.
+4. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.DOTNET_SDK} label={languageLabelMap.get(SupportedLanguage.DOTNET_SDK)}>
@@ -50,7 +50,7 @@ This section will illustrate how to update _<ProductConcept section="what-is-a-r
 1. <SdkSetupPrerequisite />
 2. You have [installed the SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx).
-4. You have loaded `FGA_STORE_ID` and `FGA_API_HOST` as environment variables.
+4. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.PYTHON_SDK} label={languageLabelMap.get(SupportedLanguage.PYTHON_SDK)}>
@@ -58,21 +58,29 @@ This section will illustrate how to update _<ProductConcept section="what-is-a-r
 1. <SdkSetupPrerequisite />
 2. You have [installed the SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx).
-4. You have loaded `FGA_STORE_ID` and `FGA_API_HOST` as environment variables.
+4. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
+
+</TabItem>
+<TabItem value={SupportedLanguage.JAVA_SDK} label={languageLabelMap.get(SupportedLanguage.JAVA_SDK)}>
+
+1. <SdkSetupPrerequisite />
+2. You have [installed the SDK](./install-sdk.mdx).
+3. You have [configured the _authorization model_](./configure-model.mdx).
+4. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.CLI} label={languageLabelMap.get(SupportedLanguage.CLI)}>
 
 1. <SdkSetupPrerequisite />
 2. You have [configured the _authorization model_](./configure-model.mdx).
-3. You have loaded `FGA_STORE_ID` and `FGA_SERVER_URL` as environment variables.
+3. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.CURL} label={languageLabelMap.get(SupportedLanguage.CURL)}>
 
 1. <SdkSetupPrerequisite />
 2. You have [configured the _authorization model_](./configure-model.mdx).
-3. You have loaded `FGA_STORE_ID` and `FGA_API_HOST` as environment variables.
+3. You have loaded `FGA_STORE_ID` and `FGA_API_URL` as environment variables.
 
 </TabItem>
 </Tabs>
@@ -81,7 +89,7 @@ This section will illustrate how to update _<ProductConcept section="what-is-a-r
 
 Assume that you want to add user `user:anne` to have relationship `reader` with object `document:Z`
 
-```json5
+```json
 {
   user: 'user:anne',
   relation: 'reader',
@@ -112,6 +120,11 @@ Before calling the write API, you will need to configure the API client.
 <TabItem value={SupportedLanguage.PYTHON_SDK} label={languageLabelMap.get(SupportedLanguage.PYTHON_SDK)}>
 
 <SdkSetupHeader lang={SupportedLanguage.PYTHON_SDK} />
+
+</TabItem>
+<TabItem value={SupportedLanguage.JAVA_SDK} label={languageLabelMap.get(SupportedLanguage.JAVA_SDK)}>
+
+<SdkSetupHeader lang={SupportedLanguage.JAVA_SDK} />
 
 </TabItem>
 <TabItem value={SupportedLanguage.CLI} label={languageLabelMap.get(SupportedLanguage.CLI)}>
@@ -146,6 +159,7 @@ To add the relationship tuples, we can invoke the write API.
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
   ]}
@@ -157,7 +171,7 @@ To delete relationship tuples, we can invoke the write API.
 
 Assume that you want to delete user `user:anne`'s `reader` relationship with object `document:Z`
 
-```json5
+```json
 {
   user: 'user:anne',
   relation: 'reader',
@@ -179,6 +193,7 @@ Assume that you want to delete user `user:anne`'s `reader` relationship with obj
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
   ]}

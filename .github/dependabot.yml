@@ -22,6 +22,8 @@ updates:
         dependency-type: "development"
         patterns:
           - "*"
+        exclude-patterns:
+          - "eslint"
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -30,3 +32,12 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+     dependencies:
+        patterns:
+          - "*"

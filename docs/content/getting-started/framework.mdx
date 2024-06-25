@@ -34,7 +34,7 @@ This section will illustrate how to integrate <ProductName format={ProductNameFo
 2. You have [installed the OpenFGA SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx) and [updated the _relationship tuples_](./update-tuples.mdx).
 4. You know how to [perform a Check](./perform-check.mdx).
-5. You have loaded `FGA_API_HOST` and `FGA_STORE_ID` as environment variables.
+5. You have loaded `FGA_API_URL` and `FGA_STORE_ID` as environment variables.
 
 </TabItem>
 <TabItem value={SupportedLanguage.GO_SDK} label={languageLabelMap.get(SupportedLanguage.GO_SDK)}>
@@ -43,7 +43,7 @@ This section will illustrate how to integrate <ProductName format={ProductNameFo
 2. You have [installed the OpenFGA SDK](./install-sdk.mdx).
 3. You have [configured the _authorization model_](./configure-model.mdx) and [updated the _relationship tuples_](./update-tuples.mdx).
 4. You know how to [perform a Check](./perform-check.mdx).
-5. You have loaded `FGA_API_HOST` and `FGA_STORE_ID` as environment variables.
+5. You have loaded `FGA_API_URL` and `FGA_STORE_ID` as environment variables.
 
 </TabItem>
 </Tabs>
@@ -324,8 +324,7 @@ module.exports = fp(async function (fastify, opts) {
     try {
       // configure the openfga api client
       const fgaClient = new OpenFgaClient({
-        apiScheme: process.env.FGA_API_SCHEME, // Optional. Can be "http" or "https". Defaults to "https"
-        apiHost: process.env.FGA_API_HOST,
+        apiUrl: process.env.FGA_API_URL, // required, e.g. https://api.fga.example
         storeId: process.env.FGA_STORE_ID,
       });
       const { allowed } = await fgaClient.check({
@@ -409,7 +408,6 @@ import (
 
   jwtware "github.com/gofiber/jwt/v3"
   "github.com/golang-jwt/jwt/v4"
-  openfga "github.com/openfga/go-sdk"
   . "github.com/openfga/go-sdk/client"
 )
 
@@ -480,10 +478,9 @@ func preauthorize(c *fiber.Ctx) error {
 // Middleware to check whether user is authorized to access document
 func checkAuthorization(c *fiber.Ctx) error {
   fgaClient, err := NewSdkClient(&ClientConfiguration{
-    ApiScheme:      os.Getenv("FGA_API_SCHEME"), // optional. Can be "http" or "https". Defaults to "https"
-    ApiHost:        os.Getenv("FGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+    ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.fga.example
     StoreId:        os.Getenv("FGA_STORE_ID"), // optional, not needed for \`CreateStore\` and \`ListStores\`, required before calling for all other methods
-    AuthorizationModelId: openfga.PtrString(os.Getenv("FGA_MODEL_ID")),  // optional, can be overridden per request
+    AuthorizationModelId: os.Getenv("FGA_MODEL_ID"),  // optional, can be overridden per request
   })
 
   if err != nil {
@@ -495,7 +492,7 @@ func checkAuthorization(c *fiber.Ctx) error {
     Relation: c.Locals("relation").(string),
     Object: c.Locals("object").(string),
   }
-  data, err := fgaClient.OpenFga.Check(context.Background()).Body(body).Execute()
+  data, err := fgaClient.Check(context.Background()).Body(body).Execute()
 
   if err != nil {
     return fiber.NewError(fiber.StatusServiceUnavailable, "Unable to check for authorization")

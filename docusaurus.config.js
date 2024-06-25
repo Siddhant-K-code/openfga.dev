@@ -1,10 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer').themes.github;
-const darkCodeTheme = require('prism-react-renderer').themes.dracula;
-
-const path = require('path');
+import { themes } from "prism-react-renderer";
+import * as path from "path";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -52,9 +50,9 @@ const config = {
     ],
     feedback: {
       defaultTitle: 'Have Feedback?',
-      defaultText: 'Join us on the Discord community if you have any questions or suggestions.',
-      defaultButtonText: 'Join Discord',
-      defaultLink: 'https://discord.gg/8naAwJfWN6',
+      defaultText: 'Join us on the CNCF Slack OpenFGA channel if you have any questions or suggestions.',
+      defaultButtonText: 'Join Slack',
+      defaultLink: 'https://openfga.dev/community',
     },
     // location of the swagger file
     apiDocsBasePath: process.env.API_DOCS_PATH
@@ -66,7 +64,7 @@ const config = {
     description: `OpenFGA is an open source Fine-Grained Authorization solution based on Google's Zanzibar.`,
     productName: `OpenFGA`,
     // link to product description section (relative to baseURL)
-    introLink: `docs/authorization-and-openfga`,
+    introLink: `docs/intro`,
     productDescriptionSection: `#what-is-openfga`,
     // link to the concept page (relative to baseURL)
     conceptLink: `docs/concepts`,
@@ -84,7 +82,8 @@ const config = {
         setupNote: `// ApiTokenIssuer, ApiAudience, ClientId and ClientSecret are optional.\n`,
       },
       go: {
-        importStatement: `. "github.com/openfga/go-sdk/client"`,
+        importStatement: `. "github.com/openfga/go-sdk"
+    . "github.com/openfga/go-sdk/client"`,
         apiName: `OpenFgaClient`,
         setupNote: `// ApiTokenIssuer, ApiAudience, ClientId and ClientSecret are optional.\n`,
       },
@@ -96,13 +95,19 @@ using OpenFga.Sdk.Model;`,
         setupNote: `// ApiTokenIssuer, ApiAudience, ClientId and ClientSecret are optional.\n`,
       },
       python: {
-        importStatement: `import os
+        importStatement: `import asyncio
+import os
 import json
-from openfga_sdk.client import ClientConfiguration
-from openfga_sdk.client import OpenFgaClient`,
+from openfga_sdk.client import ClientConfiguration, OpenFgaClient`,
         apiName: `OpenFgaClient`,
         setupNote: `# ApiTokenIssuer, ApiAudience, ClientId and ClientSecret are optional.\n`,
       },
+      java: {
+        importStatement: `import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;`,
+        apiName: `OpenFgaClient`,
+        setupNote: `// ApiTokenIssuer, ApiAudience, ClientId and ClientSecret are optional.\n`,
+      }
     },
     contentSecurityPolicy: `default-src 'none';
       base-uri 'self';
@@ -145,6 +150,7 @@ from openfga_sdk.client import OpenFgaClient`,
       /** @type {import('@docusaurus/plugin-client-redirects').Options} */
       ({
         fromExtensions: ['html'],
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         createRedirects: (path) => {},
         redirects: [
           {
@@ -152,9 +158,13 @@ from openfga_sdk.client import OpenFgaClient`,
             from: ['/api'],
           },
           {
-            to: '/docs/authorization-and-openfga',
-            from: '/docs',
+            to: '/docs/community',
+            from: '/community',
           },
+          {
+            to: '/docs/fga',
+            from: '/docs',
+          }
         ],
       }),
     ],
@@ -250,11 +260,11 @@ from openfga_sdk.client import OpenFgaClient`,
             'aria-label': 'OpenFGA on Twitter',
           },
           {
-            to: 'https://discord.gg/8naAwJfWN6',
-            label: 'Discord',
+            to: 'https://openfga.dev/community',
+            label: 'CNCF Slack',
             position: 'right',
-            className: 'header-social header-discord-link',
-            'aria-label': 'OpenFGA on Discord',
+            className: 'header-social header-slack-link',
+            'aria-label': 'OpenFGA on Slack',
           },
         ],
       },
@@ -267,10 +277,10 @@ from openfga_sdk.client import OpenFgaClient`,
             label: 'Twitter',
           },
           {
-            to: 'https://discord.gg/8naAwJfWN6',
-            className: 'header-social header-discord-link',
-            'aria-label': 'OpenFGA on Discord',
-            label: 'Discord',
+            to: 'https://openfga.dev/community',
+            className: 'header-social header-slack-link',
+            'aria-label': 'OpenFGA on Slack',
+            label: 'CNCF Slack',
           },
           {
             to: 'https://github.com/openfga',
@@ -278,14 +288,23 @@ from openfga_sdk.client import OpenFgaClient`,
             'aria-label': 'OpenFGA on GitHub',
             label: 'GitHub',
           },
+          {
+            to: 'https://mastodon.social/@openfga',
+            rel: "me noopener noreferrer",
+            className: 'header-social header-mastodon-link',
+            'aria-label': 'OpenFGA on Mastodon',
+            label: 'Mastodon',
+          },
         ],
         copyright: `<div><a href="https://www.linuxfoundation.org/trademark-usage"><img src="/img/cncf-icon-white.svg" alt="CNCF" style="vertical-align:middle; margin-right:8px;" /></a> &copy; ${new Date().getFullYear()} <a href="https://www.linuxfoundation.org/" target="_blank">The Linux Foundation</a>®. All rights reserved. <span class="display-on-desktop">For a list of trademarks of The Linux Foundation, see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text" target="blank">Trademark Usage page</a>.</span></div>`,
       },
+
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
-        additionalLanguages: ['json5', 'csharp'],
+        theme: themes.github,
+        darkTheme: themes.dracula,
+        additionalLanguages: ['bash', 'csharp', 'json', 'java', 'clike'],
       },
+
       docs: {
         sidebar: {
           hideable: true,

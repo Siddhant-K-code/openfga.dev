@@ -9,6 +9,7 @@ import {
   SupportedLanguage,
   languageLabelMap,
   DocumentationNotice,
+  ProductConcept,
   ProductName,
   ProductNameFormat,
   RelatedSection,
@@ -61,8 +62,7 @@ import (
 
 func main() {
     configuration, err := openfga.NewConfiguration(openfga.Configuration{
-        ApiScheme:      os.Getenv("FGA_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("FGA_API_HOST"), // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+        ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.fga.example
     })
 
     if err != nil {
@@ -117,6 +117,27 @@ In your code, import the module and use it:
 
 ```python
 import openfga_sdk
+```
+
+</TabItem>
+<TabItem value={SupportedLanguage.JAVA_SDK} label={languageLabelMap.get(SupportedLanguage.JAVA_SDK)}>
+
+You can find the Java package on [Maven Central](https://central.sonatype.com/artifact/dev.openfga/openfga-sdk).
+
+Using [Maven](https://maven.apache.org/):
+
+```
+<dependency>
+    <groupId>dev.openfga</groupId>
+    <artifactId>openfga-sdk</artifactId>
+    <version>0.3.1</version>
+</dependency>
+```
+
+Using [Gradle](https://gradle.org/):
+
+```groovy
+implementation 'dev.openfga:openfga-sdk:0.3.1'
 ```
 
 </TabItem>
@@ -195,5 +216,10 @@ Download the pre-compiled binaries from the [releases page](https://github.com/o
       description: 'Connect your Python service with {ProductName} using our Python SDK',
       link: 'https://github.com/openfga/python-sdk',
     },
+    {
+      title: '{ProductName} Java SDK',
+      description: 'Connect your Java service with {ProductName} using our Java SDK',
+      link: 'https://github.com/openfga/java-sdk',
+    }
   ]}
 />

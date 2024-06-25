@@ -1,8 +1,17 @@
 import { getFilteredAllowedLangs, SupportedLanguage, DefaultAuthorizationModelId } from './SupportedLanguage';
 import { defaultOperationsViewer } from './DefaultTabbedViewer';
 import assertNever from 'assert-never/index';
+import { RelationshipCondition } from '@components/Docs/RelationshipTuples';
 
 interface RelationshipTuple {
+  user: string;
+  relation: string;
+  object: string;
+  condition?: RelationshipCondition;
+  _description?: string; // Optional comment describing what this tuple represents
+}
+
+interface RelationshipTupleWithoutCondition {
   user: string;
   relation: string;
   object: string;
@@ -12,7 +21,7 @@ interface RelationshipTuple {
 interface WriteRequestViewerOpts {
   authorizationModelId?: string;
   relationshipTuples: RelationshipTuple[];
-  deleteRelationshipTuples: RelationshipTuple[];
+  deleteRelationshipTuples: RelationshipTupleWithoutCondition[];
   isDelete?: boolean;
   skipSetup?: boolean;
   allowedLanguages?: SupportedLanguage[];
@@ -27,7 +36,15 @@ function writeRequestViewer(lang: SupportedLanguage, opts: WriteRequestViewerOpt
           ? opts.relationshipTuples
               .map(
                 (tuple) =>
-                  `fga tuple write --store-id=\${FGA_STORE_ID} --model-id=${modelId} ${tuple.user} ${tuple.relation} ${tuple.object}`,
+                  `fga tuple write --store-id=\${FGA_STORE_ID} --model-id=${modelId} ${tuple.user} ${tuple.relation} ${
+                    tuple.object
+                  } ${
+                    tuple.condition
+                      ? `--condition-name ${tuple.condition.name} --condition-context '${JSON.stringify(
+                          tuple.condition.context,
+                        )}'`
+                      : ''
+                  }`,
               )
               .join('\n')
           : ''
@@ -43,19 +60,15 @@ ${
     }
     case SupportedLanguage.CURL: {
       const writeTuples = opts.relationshipTuples
-        ? opts.relationshipTuples
-            .map(({ user, relation, object }) => `{"user":"${user}","relation":"${relation}","object":"${object}"}`)
-            .join(',')
+        ? opts.relationshipTuples.map((tuple) => `${JSON.stringify(tuple)}`).join(',')
         : '';
       const deleteTuples = opts.deleteRelationshipTuples
-        ? opts.deleteRelationshipTuples
-            .map(({ user, relation, object }) => `{"user":"${user}","relation":"${relation}","object":"${object}"}`)
-            .join(',')
+        ? opts.deleteRelationshipTuples.map((tuple) => `${JSON.stringify(tuple)}`).join(',')
         : '';
       const writes = `"writes": { "tuple_keys" : [${writeTuples}] }`;
       const deletes = `"deletes": { "tuple_keys" : [${deleteTuples}] }`;
       const separator = `${opts.deleteRelationshipTuples && opts.relationshipTuples ? ',' : ''}`;
-      return `curl -X POST $FGA_SERVER_URL/stores/$FGA_STORE_ID/write \\
+      return `curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/write \\
   -H "Authorization: Bearer $FGA_API_TOKEN" \\ # Not needed if service does not require authorization
   -H "content-type: application/json" \\
   -d '{${opts.relationshipTuples ? writes : ''}${separator}${
@@ -67,13 +80,12 @@ ${
       const writeTuples = opts.relationshipTuples
         ? opts.relationshipTuples
             .map(
-              ({ user, relation, object, _description }) => `
-      ${
-        _description ? `// ${_description}\n      ` : ''
-      }{ user: '${user}', relation: '${relation}', object: '${object}'}`,
+              (tuple) => `
+      ${tuple._description ? `// ${tuple._description}\n      ` : ''}${JSON.stringify(tuple)}`,
             )
             .join(',')
         : '';
+
       const deleteTuples = opts.deleteRelationshipTuples
         ? opts.deleteRelationshipTuples
             .map(
@@ -84,10 +96,8 @@ ${
             )
             .join(',')
         : '';
-      const writes = `writes: [${writeTuples}]
-  }`;
-      const deletes = `deletes: [${deleteTuples}]
-  }`;
+      const writes = `writes: [${writeTuples.length > 0 ? `${writeTuples}\n  ]` : ']'}`;
+      const deletes = `deletes: [${deleteTuples.length > 0 ? `${deleteTuples}\n  ]` : ']'}`;
       const separator = `${opts.deleteRelationshipTuples && opts.relationshipTuples ? ',\n  ' : ''}`;
       return `
 await fgaClient.write({
@@ -102,41 +112,79 @@ await fgaClient.write({
       const writeTuples = opts.relationshipTuples
         ? opts.relationshipTuples
             .map(
-              ({ user, relation, object, _description }) => `
-\t\t\t{
-\t\t\t\t${_description ? `// ${_description}\n\t\t\t\t` : ''}User: openfga.PtrString("${user}"),
-\t\t\t\tRelation: openfga.PtrString("${relation}"),
-\t\t\t\tObject: openfga.PtrString("${object}"),
-\t\t\t}, `,
+              ({ user, relation, object, condition, _description }) =>
+                `        {${
+                  _description
+                    ? `
+             // ${_description}`
+                    : ''
+                }
+             User: "${user}",
+             Relation: "${relation}",
+             Object: "${object}",${
+               condition
+                 ? `
+             Condition: &RelationshipCondition{
+                 Name: "${condition.name}",
+                 Context: &map[string]interface{}${JSON.stringify(condition.context)},
+             },`
+                 : ''
+             }
+        }, `,
             )
             .join('')
         : '';
+
       const deleteTuples = opts.deleteRelationshipTuples
         ? opts.deleteRelationshipTuples
             .map(
-              ({ user, relation, object, _description }) => `
-\t\t\t{
-\t\t\t\t${_description ? `// ${_description}\n\t\t\t\t` : ''}User: openfga.PtrString("${user}"),
-\t\t\t\tRelation: openfga.PtrString("${relation}"),
-\t\t\t\tObject: openfga.PtrString("${object}"),
-\t\t\t}, `,
+              ({ user, relation, object, _description }) =>
+                `        {${
+                  _description
+                    ? `
+             // ${_description}`
+                    : ''
+                }
+             User: "${user}",
+             Relation: "${relation}",
+             Object: "${object}",
+        }, `,
             )
             .join('')
         : '';
-      const writes = `\tWrites: &[]ClientTupleKey{${writeTuples}}`;
-      const deletes = `\tDeletes: &[]ClientTupleKey{${deleteTuples}}`;
+
+      const writes = `\n    Writes: []ClientTupleKey{${
+        writeTuples.length > 0
+          ? `\n${writeTuples}
+    },`
+          : '},'
+      }`;
+
+      const deletes = `\n    Deletes: []ClientTupleKeyWithoutCondition{${
+        deleteTuples.length > 0
+          ? `\n${deleteTuples}
+    },`
+          : '},'
+      }`;
 
       return `
 options := ClientWriteOptions{
-\tAuthorizationModelId: openfga.PtrString("${modelId}"),
+    AuthorizationModelId: PtrString("${modelId}"),
 }
-body := fgaClient.ClientWriteRequest{
-${opts.relationshipTuples ? writes : ''}${opts.deleteRelationshipTuples ? deletes : ''} }
-data, err := fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
+
+body := ClientWriteRequest{${opts.relationshipTuples ? writes : ''}${opts.deleteRelationshipTuples ? deletes : ''} 
+}
+
+data, err := fgaClient.Write(context.Background()).
+    Body(body).
+    Options(options).
+    Execute()
 
 if err != nil {
     // .. Handle error
 }
+
+_ = data // use the response
 `;
     }
 
@@ -144,10 +192,26 @@ if err != nil {
       const writeTuples = opts.relationshipTuples
         ? opts.relationshipTuples
             .map(
-              ({ user, relation, object, _description }) =>
-                `${
-                  _description ? `    // ${_description}\n` : ''
-                }    new() { User = "${user}", Relation = "${relation}", Object = "${object}" }`,
+              ({ user, relation, object, _description, condition }) =>
+                `${_description ? `    // ${_description}\n` : ''}       new() {
+                  User = "${user}",
+                  Relation = "${relation}",
+                  Object = "${object}"${
+                    condition
+                      ? `,
+                  Condition = new RelationshipCondition(){
+                    Name = "${condition.name}",
+                    Context = new { ${Object.entries(condition.context)
+                      .map(
+                        ([k, v]) => `
+                        ${k}="${v}"`,
+                      )
+                      .join(',')}
+                    }
+                  }`
+                      : ''
+                  }
+              }`,
             )
             .join(',\n')
         : '';
@@ -164,12 +228,12 @@ if err != nil {
       const writes = `Writes = new List<ClientTupleKey>() {
 ${writeTuples}
   }`;
-      const deletes = `Deletes = new List<ClientTupleKey>() {
+      const deletes = `Deletes = new List<ClientTupleKeyWithoutCondition>() {
 ${deleteTuples}
   }`;
       const separator = `${opts.deleteRelationshipTuples && opts.relationshipTuples ? ',\n  ' : ''}`;
       return `
-var options = new ClientListObjectsOptions {
+var options = new ClientWriteOptions {
     AuthorizationModelId = "${modelId}",
 };
 var body = new ClientWriteRequest() {
@@ -182,11 +246,25 @@ var response = await fgaClient.Write(body, options);`;
       const writeTuples = opts.relationshipTuples
         ? opts.relationshipTuples
             .map(
-              ({ user, relation, object, _description }) => `
+              ({ user, relation, object, _description, condition }) => `
                 ClientTuple(
 ${_description ? `                    # ${_description}\n                    ` : '                    '}user="${user}",
                     relation="${relation}",
-                    object="${object}",
+                    object="${object}",${
+                      condition
+                        ? `
+                    condition=RelationshipCondition(
+                        name='${condition.name}',
+                        context=dict(${Object.entries(condition.context)
+                          .map(
+                            ([k, v]) => `
+                            ${k}="${v}"`,
+                          )
+                          .join(',')}
+                        )
+                    )`
+                        : ''
+                    }
                 ),`,
             )
             .join('')
@@ -204,11 +282,9 @@ ${_description ? `                    # ${_description}\n                    ` :
             .join('')
         : '';
       const writes = `    writes=[${writeTuples}
-        ],
-`;
+        ],`;
       const deletes = `    deletes=[${deleteTuples}
-        ],
-`;
+        ],`;
 
       return `options = {
     "authorization_model_id": "${modelId}"
@@ -263,6 +339,58 @@ ${opts.deleteRelationshipTuples ? deletes : ''}`;
       /* eslint-enable no-tabs */
     }
 
+    case SupportedLanguage.JAVA_SDK: {
+      const writeTuples = opts.relationshipTuples
+        ? opts.relationshipTuples
+            .map(
+              ({ user, relation, object, condition, _description }) => `
+    ${_description ? `            // ${_description}\n    ` : ''}            new ClientTupleKey()
+                        .user("${user}")
+                        .relation("${relation}")
+                        ._object("${object}")${
+                          condition
+                            ? `
+                        .condition(new ClientRelationshipCondition()
+                                .name("${condition.name}")
+                                .context(Map.of(${Object.entries(condition.context)
+                                  .map(([k, v]) => `"${k}", "${v}"`)
+                                  .join(',')}))
+                        )
+                        `
+                            : ''
+                        }`,
+            )
+            .join(',')
+        : '';
+
+      const deleteTuples = opts.deleteRelationshipTuples
+        ? opts.deleteRelationshipTuples
+            .map(
+              ({ user, relation, object, _description }) => `
+    ${_description ? `            // ${_description}\n    ` : ''}            new ClientTupleKey()
+                        .user("${user}")
+                        .relation("${relation}")
+                        ._object("${object}")`,
+            )
+            .join(',')
+        : '';
+
+      const writes = `
+        .writes(List.of(${writeTuples}
+        ))`;
+      const deletes = `
+        .deletes(List.of(${deleteTuples}
+        ))`;
+
+      return `var options = new ClientWriteOptions()
+        .authorizationModelId("${modelId}");
+
+var body = new ClientWriteRequest()${opts.relationshipTuples ? writes : ' '}${
+        opts.deleteRelationshipTuples ? deletes : ''
+      };
+
+var response = fgaClient.write(body, options).get();`;
+    }
     case SupportedLanguage.PLAYGROUND:
       return '';
     default:
@@ -276,6 +404,7 @@ export function WriteRequestViewer(opts: WriteRequestViewerOpts): JSX.Element {
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CURL,
     SupportedLanguage.CLI,
     SupportedLanguage.RPC,

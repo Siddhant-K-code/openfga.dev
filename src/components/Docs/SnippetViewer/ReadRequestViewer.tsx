@@ -48,7 +48,7 @@ function readRequestViewer(lang: SupportedLanguage, opts: ReadRequestViewerOpts)
         : '';
 
       // eslint-disable-next-line max-len
-      return `curl -X POST $FGA_SERVER_URL/stores/$FGA_STORE_ID/read \\
+      return `curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/read \\
   -H "Authorization: Bearer $FGA_API_TOKEN" \\ # Not needed if service does not require authorization
   -H "content-type: application/json" ${requestTuplePayload}'
 
@@ -73,9 +73,9 @@ const { tuples } = await fgaClient.read({
 
     case SupportedLanguage.GO_SDK: {
       const requestTuples = opts.object
-        ? (opts.user ? `\tUser: openfga.PtrString("${opts.user}"),\n` : '') +
-          (opts.relation ? `\tRelation: openfga.PtrString("${opts.relation}"),\n` : '') +
-          `\tObject: openfga.PtrString("${opts.object}"),\n`
+        ? (opts.user ? `\tUser: PtrString("${opts.user}"),\n` : '') +
+          (opts.relation ? `\tRelation: PtrString("${opts.relation}"),\n` : '') +
+          `\tObject: PtrString("${opts.object}"),\n`
         : '';
 
       /* eslint-disable no-tabs */
@@ -84,7 +84,10 @@ body := ClientReadRequest{
 ${requestTuples}
 }
 
-data, err := fgaClient.Read(context.Background()).Body(requestBody).Options(options).Execute()
+data, err := fgaClient.Read(context.Background()).
+    Body(body).
+    Options(options).
+    Execute()
 
 // data = { "tuples": [${readTuples}] }`;
     }
@@ -151,6 +154,19 @@ ${requestTuples}
 Reply: tuples:[${readTuples}]`;
     }
 
+    case SupportedLanguage.JAVA_SDK: {
+      const requestTuples = opts.object
+        ? (opts.user ? `\n        .user("${opts.user}")` : '') +
+          (opts.relation ? `\n        .relation("${opts.relation}")` : '') +
+          `\n        ._object("${opts.object}")`
+        : '';
+      return `var body = new ClientReadRequest()${requestTuples};
+
+var response = fgaClient.read(body).get();
+
+// response = { "tuples": [${readTuples}] }`;
+    }
+
     case SupportedLanguage.PLAYGROUND:
       return '';
     default:
@@ -165,6 +181,7 @@ export function ReadRequestViewer(opts: ReadRequestViewerOpts): JSX.Element {
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
     SupportedLanguage.RPC,

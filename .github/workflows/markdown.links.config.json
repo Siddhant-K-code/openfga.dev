@@ -35,6 +35,21 @@
 	  },
 	  {
 		"pattern": "^https://www.linkedin.com"
+	  },
+	  {
+		"pattern": "https://gradle.org/"
+	  },
+	  {
+		"pattern": "https://github.com/openfga/java-sdk"
+	  },
+	  {
+		"pattern": "https://maven.apache.org/"
+	  },
+	  {
+		"pattern": "https://calendar.google.com"
+	  },
+	  {
+		"pattern": "https://openfga.dev/docs/modeling/modular-models"
 	  }
 	],
 	"httpHeaders": [

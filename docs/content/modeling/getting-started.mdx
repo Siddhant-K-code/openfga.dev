@@ -53,45 +53,23 @@ If that sounds hard, don't worry! We'll guide you through it.
 ReBAC systems determine access from a <ProductConcept section="what-is-a-user" linkName="user's" /> <ProductConcept section="what-is-a-relation" linkName="relation" /> to an <ProductConcept section="what-is-an-object" linkName="object" />. Authorization decisions are then yes or no answers to the question: "Does user U have relation R with object O?".
 
 <ColumnLayout cols={2} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-  <CardBox
-    title="General Authorization Check"
-    description={
-      <p>
-        "Can user <b>U</b> <u>perform an action</u> <b>A</b> on object <b>O</b>?"
-      </p>
-    }
-    appearance="filled"
-  />
-  <CardBox
-    title="{ProductName} (ReBAC) Authorization Check"
-    description={
-      <p>
-        "Does user <b>U</b> <u>have relation</u> <b>R</b> with object <b>O</b>?"
-      </p>
-    }
-  />
+  <CardBox title="General Authorization Check" appearance="filled">
+    "Can user <b>U</b> <u>perform an action</u> <b>A</b> on object <b>O</b>?"
+  </CardBox>
+  <CardBox title="{ProductName} (ReBAC) Authorization Check">
+    "Does user <b>U</b> <u>have relation</u> <b>R</b> with object <b>O</b>?"
+  </CardBox>
 </ColumnLayout>
 
 In the previous example, a relation R should be defined that implies permission to action A. For example:
 
 <ColumnLayout cols={2} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-  <CardBox
-    title="General Authorization Check"
-    description={
-      <p>
-        "Can user <b>Jane</b> <u>perform action</u> <b>view</b> on object <b>project sandcastle</b>?"
-      </p>
-    }
-    appearance="filled"
-  />
-  <CardBox
-    title="{ProductName} (ReBAC) Authorization Check"
-    description={
-      <p>
-        "Can user <b>Jane</b> <u>have relation</u> <b>view</b> with object <b>project sandcastle</b>?"
-      </p>
-    }
-  />
+  <CardBox title="General Authorization Check" appearance="filled">
+    "Can user <b>Jane</b> <u>perform action</u> <b>view</b> on object <b>project sandcastle</b>?"
+  </CardBox>
+  <CardBox title="{ProductName} (ReBAC) Authorization Check">
+    "Can user <b>Jane</b> <u>have relation</u> <b>view</b> with object <b>project sandcastle</b>?"
+  </CardBox>
 </ColumnLayout>
 
 We'll provide more detailed examples throughout this article.
@@ -284,7 +262,7 @@ Let's highlight all object types in <span className="blue-highlight-text">blue</
 </CardBox>
 </div>
 
-However, the list of object types is not finished. To complete the list of object types you must also add all the second nouns that appear in conditions as part of expressions of this format: **"{first noun} of a/the {second noun}"**.
+However, the list of object types is not finished. To complete the list of object types you must also add all the second nouns that appear in conditions as part of expressions of this format: **"\{first noun\} of a/the \{second noun\}"**.
 
 <div style={{ marginBottom: '2rem' }}>
   <CardBox centerTitle title="... IF {first noun} of a/the {second noun}" appearance="filled" />
@@ -392,12 +370,12 @@ In those cases [**User** should also be an object type](./building-blocks/object
 
 Each of the previously defined types has a set of relations. <ProductConcept section="what-is-a-relation" linkName="Relations" /> are an important component in your model. After all, <ProductName format={ProductNameFormat.ShortForm}/> is a <IntroductionSection linkName="Relationship Based Access Control (ReBAC)" section="what-is-relationship-based-access-control-rebac"/> system.
 
-To identify relations for a type we in the write-up we can perform an exercise similar to the one we did in [list the type of objects in your system](#02-list-the-object-types).
+To identify relations for a type in the write-up we can perform an exercise similar to the one we did in [list the type of objects in your system](#02-list-the-object-types).
 
-Relations for a type {type} will be all of these:
+Relations for a type \{type\} will be all of these:
 
-- any noun that is the {noun} of a "{noun} of a/an/the {type}" expression. **These are typically the Foreign Keys in a database.** We'll highlight these in <span className="green-highlight-text">green</span>.
-- any verb or action that is the {action} of a "can {action} (in) a/an {type}" expression. **These are typically the permissions for a type.** We'll highlight these in <span className="yellow-highlight-text">yellow</span>.
+- any noun that is the \{noun\} of a "\{noun\} of a/an/the \{type\}" expression. **These are typically the Foreign Keys in a database.** We'll highlight these in <span className="green-highlight-text">green</span>.
+- any verb or action that is the \{action\} of a "can \{action\} (in) a/an \{type\}" expression. **These are typically the permissions for a type.** We'll highlight these in <span className="yellow-highlight-text">yellow</span>.
 
 <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
 <CardBox monoFontChildren appearance='filled'>
@@ -583,7 +561,7 @@ Remember _"How a user is added as a member to an organization is beyond the scop
       {
         type: 'organization',
         relations: {
-          member: { this: '' },
+          member: { this: {} },
         },
         metadata: {
           relations: {
@@ -599,12 +577,12 @@ Remember _"How a user is added as a member to an organization is beyond the scop
 Why? This relation definition states:
 
 - That organizations have members
-- That the members of an organization with id {id} are all users described by tuples of the form:
+- That the members of an organization with id \{id\} are all users described by tuples of the form:
 
   `{ user: {user-id}, relation: "member", object: "organization:{id}" }`
 
 :::info Important
-Relation definitions of the form “define {relation}: [user, organization#member]" are fairly common. They are used to express that relationships "to the object with that relation" (e.g. "users" of type user or "member of organization") can be assigned by your system and that only the users that have that relation are those with a [direct relationship](./building-blocks/direct-relationships.mdx).
+Relation definitions of the form "define \{relation\}: [user, organization#member]" are fairly common. They are used to express that relationships "to the object with that relation" (e.g. "users" of type user or "member of organization") can be assigned by your system and that only the users that have that relation are those with a [direct relationship](./building-blocks/direct-relationships.mdx).
 :::
 
 You can read more about group membership and types in [Modeling User Groups](./user-groups.mdx).
@@ -616,7 +594,7 @@ For the direct relationships, we need to figure out the object types that makes 
 
 However, it will not make sense for organization member's user to be of type document, folder or drive.
 
-We will specify this logic as part of directly <ProductConcept section="what-is-a-directly-related-user-type" linkName="directly related user type" />.
+We will specify this logic as part of <ProductConcept section="what-is-a-directly-related-user-type" linkName="directly related user type" />.
 
 :::note Side note
 This also automatically supports nested organizational membership if you want such a feature in your system. You could use relationship tuples like the following one to express that "members of organization A are members of organization B":
@@ -666,7 +644,7 @@ The complete <ProductConcept section="what-is-a-type-definition" linkName="type 
 
 After defining your "group" like types, continue with the most important type for the feature: the one that allows the main use case. In this case "document", since the main use case for users is to create, write, read and collaborate on documents.
 
-Defining relations for the main type lets you to focus on your core use case, and will likely make other type definitions easier.
+Defining relations for the main type lets you focus on your core use case, and will likely make other type definitions easier.
 
 ##### Relation: Owner
 
@@ -688,7 +666,7 @@ The relation definition then should be:
       {
         type: 'document',
         relations: {
-          owner: { this: '' },
+          owner: { this: {} },
         },
         metadata: {
           relations: {
@@ -723,7 +701,7 @@ The relation definition then should be:
       {
         type: 'document',
         relations: {
-          editor: { this: '' },
+          editor: { this: {} },
         },
         metadata: {
           relations: {
@@ -768,7 +746,7 @@ The viewer relation is similar to the document's [editor relation](#relation-edi
       {
         type: 'document',
         relations: {
-          viewer: { this: '' },
+          viewer: { this: {} },
         },
         metadata: {
           relations: {
@@ -799,7 +777,7 @@ When a document is created a relationship tuple will be stored in <ProductName f
       {
         type: 'document',
         relations: {
-          parent: { this: '' },
+          parent: { this: {} },
         },
         metadata: {
           relations: {
@@ -813,7 +791,7 @@ When a document is created a relationship tuple will be stored in <ProductName f
 Why? This relation definition states that:
 
 - documents may have a parent
-- the parent(s) of a document with id {id} is either a folder or a drive, described by one of these relationship tuples:
+- the parent(s) of a document with id \{id\} is either a folder or a drive, described by one of these relationship tuples:
   - `{ user: "folder:{id}", relation: "parent", object: "document:{id}" }`
   - `{ user: "drive:{id}", relation: "parent", object: "document:{id}" }`
 
@@ -1387,23 +1365,12 @@ How? Remember from the introduction that **<ProductName format={ProductNameForma
 The <ProductName format={ProductNameFormat.ShortForm}/> service does that by checking if a user has a particular relationship to an object, based on your authorization model and relationship tuples.
 
 <ColumnLayout cols={2} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-  <CardBox
-    title="General Authorization Check"
-    description={
-      <p>
-        "Can user <b>U</b> <u>perform action</u> <b>A</b> on object <b>O</b>?"
-      </p>
-    }
-    appearance="filled"
-  />
-  <CardBox
-    title="{ProductName} (ReBAC) Authorization Check"
-    description={
-      <p>
-        "Can user <b>U</b> <u>have relation</u> <b>R</b> with object <b>O</b>?"
-      </p>
-    }
-  />
+  <CardBox title="General Authorization Check" appearance="filled">
+    "Can user <b>U</b> <u>perform action</u> <b>A</b> on object <b>O</b>?"
+  </CardBox>
+  <CardBox title="{ProductName} (ReBAC) Authorization Check">
+    "Can user <b>U</b> <u>have relation</u> <b>R</b> with object <b>O</b>?"
+  </CardBox>
 </ColumnLayout>
 
 What we want is to ensure that given our current authorization model and some sample relationship tuples, we get the expected results for those questions.
@@ -1445,7 +1412,7 @@ Because anne is the owner of document:1:
 
 Because beth is a member of organization:fabrikam and members of organization:fabrikam are writer of document:1:
 
-- user **beth** does not have relation **can_share** with document:1
+- user **beth** has relation **can_share** with document:1
 - user **beth** has relation **can_write** with document:1
 - user **beth** has relation **can_view** with document:1
 - user **beth** does not have relation **can_change_owner** with document:1
@@ -1479,8 +1446,6 @@ Once all the assertions are working, you should continue the iterative process o
 We'll leave the exercise of defining the drive and folder relations, then adding relationship tuples and assertions to you. Once you are finished, check out the complete example to see how you did.
 
 When defining the authorization model for your own system, you would continue iterating on the <ProductConcept section="what-is-an-authorization-model" linkName="authorization model" /> with the [next feature](#01-pick-the-most-important-feature) and so on.
-
-If you have any questions about this model or others, or would like some help creating your model, drop by our [Discord](https://discord.gg/8naAwJfWN6).
 
 ## Related Sections
 

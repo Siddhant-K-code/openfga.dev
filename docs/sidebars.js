@@ -4,11 +4,16 @@ const sidebars = {
     {
       type: 'doc',
       label: 'What is OpenFGA',
-      id: 'content/authorization-and-openfga',
+      id: 'content/intro',
     },
     {
       type: 'doc',
-      label: 'Concepts',
+      label: 'Authorization Concepts',
+      id: 'content/authorization-concepts',
+    },
+    {
+      type: 'doc',
+      label: 'OpenFGA Concepts',
       id: 'content/concepts',
     },
     {
@@ -38,6 +43,11 @@ const sidebars = {
           items: [
             {
               type: 'doc',
+              label: 'Configure OpenFGA',
+              id: 'content/getting-started/setup-openfga/configure-openfga',
+            },
+            {
+              type: 'doc',
               label: '🐳 Docker',
               id: 'content/getting-started/setup-openfga/docker-setup',
             },
@@ -45,6 +55,11 @@ const sidebars = {
               type: 'doc',
               label: '☸️ Kubernetes',
               id: 'content/getting-started/setup-openfga/kubernetes-setup',
+            },
+            {
+              type: 'doc',
+              label: 'Playground',
+              id: 'content/getting-started/setup-openfga/playground',
             }
           ]
         },
@@ -82,6 +97,16 @@ const sidebars = {
           type: 'doc',
           label: 'Perform a List Objects Request',
           id: 'content/getting-started/perform-list-objects',
+        },
+        {
+          type: 'doc',
+          label: 'Perform a List Users Request',
+          id: 'content/getting-started/perform-list-users',
+        },
+        {
+          type: 'doc',
+          label: 'Use the FGA CLI',
+          id: 'content/getting-started/cli',
         },
         {
           type: 'doc',
@@ -162,6 +187,16 @@ const sidebars = {
         },
         {
           type: 'doc',
+          label: 'Conditions',
+          id: 'content/modeling/conditions',
+        },
+        {
+          type: 'doc',
+          label: 'Token claims as Contextual Tuples',
+          id: 'content/modeling/token-claims-contextual-tuples',
+        },
+        {
+          type: 'doc',
           label: 'Contextual and Time-Based Authorization',
           id: 'content/modeling/contextual-time-based-authorization',
         },
@@ -169,6 +204,16 @@ const sidebars = {
           type: 'doc',
           label: 'Authorization Through Organization Context',
           id: 'content/modeling/organization-context-authorization',
+        },
+        {
+          type: 'doc',
+          label: "Testing Models",
+          id: 'content/modeling/testing-models',
+        },
+        {
+          type: 'doc',
+          label: "Modular Models",
+          id: 'content/modeling/modular-models',
         },
         {
           type: 'category',
@@ -253,12 +298,6 @@ const sidebars = {
               type: 'doc',
               label: 'Migrating Relations',
               id: 'content/modeling/migrating/migrating-relations',
-            },
-            // for now, do not show the migrating schema page
-            {
-              type: 'doc',
-              label: 'Migrating to Schema 1.1',
-              id: 'content/modeling/migrating/migrating-schema-1-1',
             },
           ],
         },

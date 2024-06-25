@@ -12,7 +12,9 @@ interface ReadChangesRequestViewerOpts {
 function readChangesRequestViewer(lang: SupportedLanguage, opts: ReadChangesRequestViewerOpts) {
   switch (lang) {
     case SupportedLanguage.CLI: {
-      return `fga tuple changes --store-id=\${FGA_STORE_ID}${opts.type ? ` --type ${opts.type}` : ''}`;
+      return `fga tuple changes --store-id=\${FGA_STORE_ID}${opts.type ? ` --type ${opts.type}` : ''}${
+        opts.continuationToken ? ` --continuation-token ${opts.continuationToken}` : ''
+      }`;
     }
     case SupportedLanguage.CURL: {
       const typeString = `${opts.type ? '"type": ' + opts.type + '", ' : ''}`;
@@ -20,7 +22,7 @@ function readChangesRequestViewer(lang: SupportedLanguage, opts: ReadChangesRequ
       const tokenString = `${opts.continuationToken ? '"continuation_token": "' + opts.continuationToken + '", ' : ''}`;
       // eslint-disable-next-line max-len
       const pageSizeString = `${opts.pageSize ? '"page_size": ' + opts.pageSize : ''}`;
-      return `curl -X POST $FGA_SERVER_URL/stores/$FGA_STORE_ID/changes \\
+      return `curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/changes \\
   -H "Authorization: Bearer $FGA_API_TOKEN" \\ # Not needed if service does not require authorization
   -H "content-type: application/json" \\
   -d '{${typeString}${tokenString}${pageSizeString}}'`;
@@ -40,12 +42,15 @@ await fgaClient.readChanges({ type }, { pageSize, continuationToken });`;
     case SupportedLanguage.GO_SDK: {
       // eslint-disable-next-line max-len
       return `options := ClientReadChangesOptions{${
-        opts.pageSize ? `\n\tPageSize: openfga.PtrInt32(${opts.pageSize}),\n` : ''
-      }${opts.continuationToken ? `\n\tContinuationToken: openfga.PtrString("${opts.continuationToken}"),\n` : ''}}
+        opts.pageSize ? `\n\tPageSize: PtrInt32(${opts.pageSize}),\n` : ''
+      }${opts.continuationToken ? `\n\tContinuationToken: PtrString("${opts.continuationToken}"),\n` : ''}}
 body := ClientReadChangesRequest{${opts.type ? `\n\tType: "${opts.type}",` : ''}
 }
 
-data, err := fgaClient.ReadChanges(context.Background()).Body(body).Options(options).Execute()
+data, err := fgaClient.ReadChanges(context.Background()).
+    Body(body).
+    Options(options).
+    Execute()
 
 if err != nil {
     // .. Handle error
@@ -72,6 +77,16 @@ options = new ClientReadChangesOptions {
 response = await fga_client.read_changes(body, options)`;
     }
 
+    case SupportedLanguage.JAVA_SDK: {
+      return `var options = new ClientReadChangesOptions()${
+        opts.pageSize ? `\n        .pageSize(${opts.pageSize})` : ''
+      }${opts.continuationToken ? `\n        .continuationToken("${opts.continuationToken}")` : ''};
+
+var body = new ClientReadChangesRequest()${opts.type ? `\n        .type("${opts.type}")` : ''};
+
+var response = fgaClient.readChanges(body, options).get();`;
+    }
+
     default: {
       return ``;
     }
@@ -84,6 +99,7 @@ export function ReadChangesRequestViewer(opts: ReadChangesRequestViewerOpts): JS
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
   ];

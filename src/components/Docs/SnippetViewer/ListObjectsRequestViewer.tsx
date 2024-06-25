@@ -9,13 +9,16 @@ interface ListObjectsRequestViewerOpts {
   relation: string;
   objectType: string;
   contextualTuples?: TupleKey[];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context?: Record<string, any>;
   expectedResults: string[];
   skipSetup?: boolean;
   allowedLanguages?: SupportedLanguage[];
 }
 
 function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequestViewerOpts): string {
-  const { user, relation, objectType, contextualTuples, expectedResults } = opts;
+  const { user, relation, objectType, contextualTuples, context, expectedResults } = opts;
   const modelId = opts.authorizationModelId ? opts.authorizationModelId : DefaultAuthorizationModelId;
 
   switch (lang) {
@@ -24,19 +27,20 @@ function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequ
     case SupportedLanguage.CLI:
       return `fga query list-objects --store-id=\${FGA_STORE_ID} --model-id=${modelId} ${user} ${relation} ${objectType}${
         contextualTuples
-          ? ` --contextual_tuples ${contextualTuples
-              .map((tuple) => `"${tuple.user} ${tuple.relation} ${tuple.object}"`)
+          ? `${contextualTuples
+              .map((tuple) => ` --contextual-tuple "${tuple.user} ${tuple.relation} ${tuple.object}"`)
               .join(' ')}`
           : ''
-      }
+      }${context ? ` --context='${JSON.stringify(context)}'` : ''}
 
 # Response: {"objects": [${expectedResults.map((r) => `"${r}"`).join(', ')}]}`;
     case SupportedLanguage.CURL:
       /* eslint-disable max-len */
-      return `curl -X POST $FGA_SERVER_URL/stores/$FGA_STORE_ID/list-objects \\
+      return `curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/list-objects \\
   -H "Authorization: Bearer $FGA_API_TOKEN" \\ # Not needed if service does not require authorization
   -H "content-type: application/json" \\
-  -d '{ "authorization_model_id": "${modelId}",
+  -d '{
+        "authorization_model_id": "${modelId}",
         "type": "${objectType}",
         "relation": "${relation}",
         "user":"${user}"${
@@ -50,11 +54,16 @@ function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequ
             )
             .join(',')}
           ]
+        }`
+            : ''
+        }${
+          context
+            ? `,
+        "context":${JSON.stringify(context)}`
+            : ''
         }
-      }'`
-            : `
-      }'`
-        }
+    }'
+
 
 # Response: {"objects": [${expectedResults.map((r) => `"${r}"`).join(', ')}]}`;
     /* eslint-enable max-len */
@@ -65,7 +74,7 @@ function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequ
   type: "${objectType}",${
     contextualTuples?.length
       ? `
-  contextual_tuples: {
+      contextualTuples: {
     tuple_keys: [${contextualTuples
       .map(
         (tupleKey) => `{
@@ -77,6 +86,11 @@ function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequ
       .join(', ')}]
   },`
       : ''
+  }${
+    context
+      ? `
+  context:${JSON.stringify(context)},`
+      : ''
   }
 }, {
   authorization_model_id: "${modelId}",
@@ -84,43 +98,50 @@ function listObjectsRequestViewer(lang: SupportedLanguage, opts: ListObjectsRequ
 // response.objects = [${expectedResults.map((r) => `"${r}"`).join(', ')}]`;
     case SupportedLanguage.GO_SDK:
       /* eslint-disable no-tabs */
-      return `
-options := ClientListObjectsOptions{
-    AuthorizationModelId: openfga.PtrString("${modelId}"),
+      return `options := ClientListObjectsOptions{
+    AuthorizationModelId: PtrString("${modelId}"),
 }
+
 body := ClientListObjectsRequest{
-\tUser:     "${user}",
-\tRelation: "${relation}",
-\tType:     "${objectType}",${
-        !contextualTuples
-          ? ''
-          : `
-\tContextualTuples: &[]ClientTupleKey{
+    User:     "${user}",
+    Relation: "${relation}",
+    Type:     "${objectType}",${
+      !contextualTuples
+        ? ''
+        : `
+    ContextualTuples: []ClientTupleKey{
 ${
   !contextualTuples
     ? ''
     : contextualTuples
         .map(
-          (tuple) => `\t\t{
-\t\t\tUser:     "${tuple.user}",
-\t\t\tRelation: "${tuple.relation}",
-\t\t\tObject:   "${tuple.object}",
-\t\t}`,
+          (tuple) =>
+            `        {
+             User:     "${tuple.user}",
+             Relation: "${tuple.relation}",
+             Object:   "${tuple.object}",
+        },`,
         )
-        .join(',\n')
+        .join('\n')
 }
-\t}`
-      }
+    },`
+    }${
+      context
+        ? `
+    Context: &map[string]interface{}${JSON.stringify(context)},`
+        : ''
+    }
 }
+
 data, err := fgaClient.ListObjects(context.Background()).
-  Body(requestBody).
-  Options(options).
-  Execute()
+    Body(body).
+    Options(options).
+    Execute()
 
 // data = { "objects": [${expectedResults.map((r) => `"${r}"`).join(', ')}] }`;
     case SupportedLanguage.DOTNET_SDK:
       return `
-var options = new ClientListObjectsOptions {
+var options = new ClientCheckOptions {
     AuthorizationModelId = "${modelId}",
 };
 var body = new ClientListObjectsRequest {
@@ -134,6 +155,13 @@ var body = new ClientListObjectsRequest {
       .map((tuple) => `new(user: "${tuple.user}", relation: "${tuple.relation}", _object: "${tuple.object}")`)
       .join(',\n    ')}
 })`
+        : ''
+    }
+    ${
+      context
+        ? `Context = new { ${Object.entries(context)
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(',')} }`
         : ''
     }
 };
@@ -160,6 +188,17 @@ body = ClientListObjectsRequest(
           .join(',\n                ')}
     ],`
         : ``
+    }${
+      context
+        ? `
+    context=dict(${Object.entries(context)
+      .map(
+        ([k, v]) => `
+        ${k}="${v}"`,
+      )
+      .join(',')}
+    )`
+        : ''
     }
 )
 
@@ -185,6 +224,38 @@ response = await fga_client.list_objects(body, options)
 );
 
 Reply: [${expectedResults.map((r) => `"${r}"`).join(', ')}]`;
+
+    case SupportedLanguage.JAVA_SDK: {
+      const contextualTuplesList = contextualTuples
+        ? `
+        .contextualTupleKeys(
+                List.of(${contextualTuples.map(
+                  (tuple) => `
+                        new ClientTupleKey()
+                                .user("${tuple.user}")
+                                .relation("${tuple.relation}")
+                                ._object("${tuple.object}")
+                ))`,
+                )}`
+        : '';
+      const contextCall = context
+        ? `
+        .context(Map.of(${Object.entries(context)
+          .map(([k, v]) => `"${k}", "${v}"`)
+          .join(',')}))`
+        : '';
+      return `var options = new ClientListObjectsOptions()
+        .authorizationModelId("${modelId}");
+
+var body = new ClientListObjectsRequest()
+        .user("${user}")
+        .relation("${relation}")
+        .type("${objectType}")${contextualTuplesList}${contextCall};
+
+var response = fgaClient.listObjects(body, options).get();
+
+// response.getObjects() = [${expectedResults.map((r) => `"${r}"`).join(', ')}]`;
+    }
     default:
       assertNever(lang);
   }
@@ -196,6 +267,7 @@ export function ListObjectsRequestViewer(opts: ListObjectsRequestViewerOpts): JS
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
     SupportedLanguage.RPC,

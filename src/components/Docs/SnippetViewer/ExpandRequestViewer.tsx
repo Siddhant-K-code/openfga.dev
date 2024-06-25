@@ -20,7 +20,7 @@ function expandRequestViewer(lang: SupportedLanguage, opts: ExpandRequestViewerO
 # Response: {"tree": ...}`;
     case SupportedLanguage.CURL:
       // eslint-disable-next-line max-len
-      return `curl -X POST $FGA_SERVER_URL/stores/$FGA_STORE_ID/expand \\
+      return `curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/expand \\
   -H "Authorization: Bearer $FGA_API_TOKEN" \\ # Not needed if service does not require authorization
   -H "content-type: application/json" \\
   -d '{"tuple_key":{"relation":"${opts.relation}","object":"${opts.object}"}, "authorization_model_id": "${modelId}"}'
@@ -41,13 +41,16 @@ const { tree } = await fgaClient.expand({
       /* eslint-disable no-tabs */
       return `
 options := ClientExpandOptions{
-    AuthorizationModelId: openfga.PtrString("${modelId}"),
+    AuthorizationModelId: PtrString("${modelId}"),
 }
 body := ClientExpandRequest{
     Relation: "${opts.relation}", // expand all who has "${opts.relation}" relation
     Object:   "${opts.object}", // with the object "${opts.object}"
 }
-data, err := fgaClient.Expand(context.Background()).Body(requestBody).Options(options).Execute()
+data, err := fgaClient.Expand(context.Background()).
+    Body(body).
+    Options(options).
+    Execute()
 
 // data = { tree: ...}`;
 
@@ -88,6 +91,16 @@ response = await fga_client.expand(body. options)
 # response = ExpandResponse({"tree":...})
 `;
 
+    case SupportedLanguage.JAVA_SDK:
+      return `var options = new ClientExpandOptions()
+        .authorizationModelId("${modelId}");
+
+var body = new ClientExpandRequest()
+        .relation("${opts.relation}") // expand all who has "${opts.relation}" relation
+        ._object("${opts.object}"); // with the object "${opts.object}"
+
+var response = fgaClient.expand(body, options).get()
+  `;
     case SupportedLanguage.PLAYGROUND:
       return '';
     default:
@@ -101,6 +114,7 @@ export function ExpandRequestViewer(opts: ExpandRequestViewerOpts): JSX.Element 
     SupportedLanguage.GO_SDK,
     SupportedLanguage.DOTNET_SDK,
     SupportedLanguage.PYTHON_SDK,
+    SupportedLanguage.JAVA_SDK,
     SupportedLanguage.CLI,
     SupportedLanguage.CURL,
     SupportedLanguage.RPC,
